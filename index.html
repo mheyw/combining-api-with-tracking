@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>news.api with tracking.js</title>
+        <script src="build/tracking-min.js"></script>
+        <script src="build/data/face-min.js"></script>
+
+        <script src="p5.min.js"></script>
+        <script src="addons/p5.dom.min.js"></script>
+        <script src="addons/p5.sound.min.js"></script>
+        <script src="sketch.js"></script>
+        <style>
+            video, canvas {
+                margin-left: -10px;
+                margin-top: -10px;
+                position: absolute;
+                background-color: #000000
+            }
+        </style>
+    </head>
+    <body>
+        <div class="demo-frame">
+            <div class="demo-container">
+                <video id="video" width="960" height="600" preload autoplay loop muted></video>
+                <canvas id="canvas" width="1280" height="800"></canvas>
+            </div>
+        </div>
+
+        <script>
+            var faceX = 0;
+            var faceY = 0;
+            var faceW = 0;
+            var faceH = 0;
+            window.onload = function() {
+                var video = document.getElementById('video').style.visibility = "hidden";
+                
+                navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}}).then(function (stream) {
+                    document.getElementById('video').srcObject = stream;
+                });
+
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                var img = new Image();
+
+                var trackFace = new tracking.ObjectTracker("face");
+                trackFace.setInitialScale(4);
+                trackFace.setStepSize(1.5);
+                trackFace.setEdgesDensity(0.1);
+
+                tracking.track('#video', trackFace, { camera: true });
+
+                trackFace.on('track', function(event) {
+
+                    event.data.forEach(function(rect) {
+                        faceX = rect.x
+                        faceY = rect.y
+                        faceW = rect.width;
+                        faceH = rect.height;
+                    });
+                });
+            };
+        </script>
+    </body>
+</html>
